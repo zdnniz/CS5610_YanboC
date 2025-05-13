@@ -6,7 +6,7 @@ export default function Exams() {
             <button id="wd-edit-exams">Edit Quiz</button>
 
             <h3 id="wd-exam-list">
-                Exams 30% of Total <button>+</button>
+                Exams 20% of Total <button>+</button>
                 <label htmlFor="wd-exam-group">Group</label>
                 <select id="wd-select-exam-group">
                     <option value="Group1">Group1</option>

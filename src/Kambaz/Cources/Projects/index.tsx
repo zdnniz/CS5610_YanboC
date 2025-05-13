@@ -5,9 +5,8 @@ export default function Projects() {
             <button id="wd-edit-project-group">Edit Project Groups</button>
             <button id="wd-edit-project">Edit Project</button>
 
-            // project groups
             <h3 id="wd-project-title">
-                Projects <button>+</button>
+                Projects 10% of Total<button>+</button>
                 <label htmlFor="wd-project-group">Group</label>
                 <select id="wd-select-project-group">
                     <option value="Group1">Group1</option>
@@ -18,7 +17,6 @@ export default function Projects() {
                 </select>
             </h3>
 
-            // project list
             <ul id="wd-project-list">
                 <li className="wd-project-list-item">
                     <a href="#/Kambaz/Courses/1234/Projects/123" className="wd-project-link">

@@ -1,6 +1,5 @@
 import TodoItem from "./TodoItem.tsx";
 import todos from "./todos.json";
-import React from "react";
 import { ListGroup } from "react-bootstrap";
 
 export default function TodoList() {

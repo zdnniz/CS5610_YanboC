@@ -1,6 +1,21 @@
-import { Form, Button, Row, Col } from 'react-bootstrap';
+import { Form, Row, Col } from 'react-bootstrap';
+import { useParams, Link } from 'react-router-dom';
+import * as db from '../../Database';
 
 export default function AssignmentEditor() {
+  const { aid } = useParams();
+  const assignment = db.assignments.find(a => a._id === aid);
+  const safeFormatDate = (dateString?: string): string => {
+    if (!dateString) return "";
+
+    const date = new Date(dateString);
+    return isNaN(date.getTime())
+      ? ""
+      : new Date(date.getTime() - date.getTimezoneOffset() * 60000)
+        .toISOString()
+        .slice(0, 16);
+  };
+
   return (
     <div id="wd-assignments-editor" className="p-4">
       <Form>
@@ -9,7 +24,7 @@ export default function AssignmentEditor() {
           <Form.Control
             id="wd-name"
             placeholder="Assignment Name"
-            value="A1 - ENV + HTML"
+            defaultValue={assignment?.title}
           />
         </Form.Group>
 
@@ -19,7 +34,7 @@ export default function AssignmentEditor() {
             as="textarea"
             id="wd-description"
             rows={10}
-            defaultValue="The assignment is available online Submit a link to the landing page of"
+            defaultValue={assignment?.description || "Assignment description"}
           />
         </Form.Group>
 
@@ -30,7 +45,7 @@ export default function AssignmentEditor() {
           <Col sm={10}>
             <Form.Control
               id="wd-points"
-              placeholder="points"
+              defaultValue={assignment?.points || 100}
               type="number"
               className="w-25"
             />
@@ -43,9 +58,10 @@ export default function AssignmentEditor() {
           </Form.Label>
           <Col sm={10}>
             <Form.Select id="wd-group" className="w-50">
-              <option value="Group1">Group1</option>
-              <option value="Group2">Group2</option>
-              <option value="Group3">Group3</option>
+              <option value="ASSIGNMENTS">ASSIGNMENTS</option>
+              <option value="QUIZZES">QUIZZES</option>
+              <option value="EXAMS">EXAMS</option>
+              <option value="PROJECT">PROJECT</option>
             </Form.Select>
           </Col>
         </Form.Group>
@@ -56,15 +72,9 @@ export default function AssignmentEditor() {
           </Form.Label>
           <Col sm={10}>
             <Form.Select id="wd-display-grade-as" className="w-50">
-              <option value="A">A</option>
-              <option value="A-">A-</option>
-              <option value="B+">B+</option>
-              <option value="B">B</option>
-              <option value="B-">B-</option>
-              <option value="C+">C+</option>
-              <option value="C">C</option>
-              <option value="C-">C-</option>
-              <option value="F">F</option>
+              <option value="Percentage">Percentage</option>
+              <option value="Points">Points</option>
+              <option value="Letter Grade">Letter Grade</option>
             </Form.Select>
           </Col>
         </Form.Group>
@@ -73,33 +83,26 @@ export default function AssignmentEditor() {
           <Col sm={12}>
             <Form.Label>Submission Type</Form.Label>
           </Col>
-
           <Col sm={10}>
             <div className="border p-3 rounded-0" style={{ marginLeft: '120px' }}>
-
               <Form.Group as={Row} className="mb-3 align-items-center">
-
                 <Col sm={10}>
                   <Form.Select id="wd-submission-type" className="w-50">
-                    <option value="HTML">HTML</option>
-                    <option value=".pdf">.pdf</option>
-                    <option value=".doc">.doc</option>
-                    <option value=".txt">.txt</option>
-                    <option value=".zip">.zip</option>
+                    <option value="Online">Online</option>
+                    <option value="Offline">Offline</option>
                   </Form.Select>
                 </Col>
               </Form.Group>
 
               <Form.Group as={Row} className="mb-3 align-items-baseline">
-                <h4>
-                  Online Entry Options
-                </h4>
+                <h4>Online Entry Options</h4>
                 <Col sm={10}>
                   <Form.Check
                     type="checkbox"
                     id="wd-text-entry"
                     label="Text Entry"
                     className="mb-1"
+                    defaultChecked
                   />
                   <Form.Check
                     type="checkbox"
@@ -124,10 +127,10 @@ export default function AssignmentEditor() {
                     id="wd-file-upload"
                     label="File Uploads"
                     className="mb-1"
+                    defaultChecked
                   />
                 </Col>
               </Form.Group>
-
             </div>
           </Col>
         </Row>
@@ -138,13 +141,11 @@ export default function AssignmentEditor() {
           </Col>
           <Col sm={10}>
             <div className="border p-3 rounded-0" style={{ marginLeft: '30px' }}>
-
               <Form.Group className="mb-3">
                 <Form.Label htmlFor="wd-assign-to">Assign to</Form.Label>
                 <Form.Control
                   id="wd-assign-to"
-                  placeholder="Assign to"
-                  value="Everyone"
+                  defaultValue="Everyone"
                 />
               </Form.Group>
 
@@ -152,26 +153,31 @@ export default function AssignmentEditor() {
                 <Form.Label htmlFor="wd-due-date">Due Date</Form.Label>
                 <Form.Control
                   id="wd-due-date"
-                  type="date"
-                  defaultValue="2025-05-07"
+                  type="datetime-local"
+                  defaultValue={
+                    assignment?.dueDate && !isNaN(new Date(assignment.dueDate).getTime())
+                      ? new Date(assignment.dueDate).toISOString().slice(0, 16)
+                      : ""
+                  }
                 />
               </Form.Group>
+
 
               <Form.Group as={Row} className="mb-3">
                 <Col sm={6}>
                   <Form.Label htmlFor="wd-available-from">Available from</Form.Label>
                   <Form.Control
                     id="wd-available-from"
-                    type="date"
-                    defaultValue="2025-05-01"
+                    type="datetime-local"
+                    defaultValue={safeFormatDate(assignment?.availableFrom)}
                   />
                 </Col>
                 <Col sm={6}>
                   <Form.Label htmlFor="wd-available-until">Until</Form.Label>
                   <Form.Control
                     id="wd-available-until"
-                    type="date"
-                    defaultValue="2025-05-15"
+                    type="datetime-local"
+                    defaultValue={safeFormatDate(assignment?.availableFrom)}
                   />
                 </Col>
               </Form.Group>
@@ -180,12 +186,12 @@ export default function AssignmentEditor() {
         </Row>
 
         <div className="mt-4">
-          <Button variant="secondary" className="me-2" id="wd-editor-cancel">
+          <Link to={`/Assignments`} className="btn btn-secondary me-2" id="wd-editor-cancel">
             Cancel
-          </Button>
-          <Button variant="danger" id="wd-editor-save">
+          </Link>
+          <Link to={`/Assignments`} className="btn btn-danger" id="wd-editor-save">
             Save
-          </Button>
+          </Link>
         </div>
       </Form>
     </div>

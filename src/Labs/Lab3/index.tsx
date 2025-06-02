@@ -35,7 +35,6 @@ import PathParameters from './PathParameters';
 import { useSelector } from "react-redux";
 import { ListGroup } from "react-bootstrap";
 
-
 export default function Lab3() {
   const { todos } = useSelector((state: any) => state.todosReducer);
   console.log('Hello World!');

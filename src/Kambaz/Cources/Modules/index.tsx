@@ -13,24 +13,9 @@ import { useSelector, useDispatch } from "react-redux";
 export default function Modules() {
     const { cid } = useParams();
     const { modules } = useSelector((state: any) => state.modulesReducer);
-    //const [modules, setModules] = useState<any[]>(db.modules);
     const [moduleName, setModuleName] = useState("");
 
     const dispatch = useDispatch();
-    /*const addModule = () => {
-        setModules([, { _id: uuidv4(), name: moduleName, course: cid, lessons: [] }]);
-        setModuleName("");
-    };
-    const deleteModule = (moduleId: string) => {
-        setModules(modules.filter((m) => m._id !== moduleId));
-    };
-    const editModule = (moduleId: string) => {
-        setModules(modules.map((m) => (m._id === moduleId ? { ...m, editing: true } : m)));
-    };
-    const updateModule = (module: any) => {
-        setModules(modules.map((m) => (m._id === module._id ? module : m)));
-    };*/
-
 
     return (
         <div>

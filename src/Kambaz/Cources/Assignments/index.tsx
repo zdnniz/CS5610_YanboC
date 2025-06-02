@@ -1,54 +1,104 @@
+import { FaPlus, FaSearch } from "react-icons/fa";
+import { Button, ListGroup, Form } from "react-bootstrap";
+import { BsGripVertical } from "react-icons/bs";
+import { useParams, Link, useNavigate } from "react-router-dom"; 
+import AssignmentControlButtons from './AssignmentControlButtons';
+import AssignmentModule from './AssignmentModule';
+import { useDispatch, useSelector } from "react-redux";
+import { v4 as uuidv4 } from "uuid";
+import { addAssignment, deleteAssignment } from "./reducer";
+
 export default function Assignments() {
-  return (
-    <div id="wd-assignments">
-      <input placeholder="Search for Assignments"
-        id="wd-search-assignment" />
-      <button id="wd-add-assignment-group">+ Group</button>
-      <button id="wd-add-assignment">+ Assignment</button>
+    const { cid } = useParams();
+    const navigate = useNavigate(); 
+    const dispatch = useDispatch();
 
-      <h3 id="wd-assignments-title">
-        ASSIGNMENTS 40% of Total <button>+</button>
-        <label htmlFor="wd-assignment-group">Group</label>
-        <select id="wd-select-assignment-group">
-          <option value="Group1">Group1</option>
-          <option value="Group2">Group2</option>
-          <option value="Group3">Group3</option>
-        </select>
-      </h3>
+    const assignments = useSelector((state: any) => state.assignmentReducer.assignments);
+    const courseAssignments = assignments.filter(
+        (assignment: any) => assignment.course === cid
+    );
 
-      <ul id="wd-assignment-list">
-        <li className="wd-assignment-list-item">
-          <a href="#/Kambaz/Courses/1234/Assignments/123"
-            className="wd-assignment-link" >
-            A1 - ENV + HTML
-          </a>
+    const addAssignmentHandler = () => {
+      const newAssignment = {
+        _id: uuidv4(),
+        title: "New Assignment",
+        course: cid ?? "",
+        description: "",
+        availableFrom: new Date().toISOString().slice(0, 10),
+        dueDate: new Date().toISOString().slice(0, 10),
+        points: 100,
+      };
+    
+      dispatch(addAssignment(newAssignment));
+      navigate(`/Kambaz/Courses/${cid}/Assignments/${newAssignment._id}`);}
 
-          <p>Multiple Modules | <b>Not available until</b> May 6 at 12: 00am |</p>
-          <p><b>Due</b> May 13 at 11： 59pm | 100 pts A2-CSS BOOTSTRAP</p>
-        </li>
+      const handleDelete = (assignmentId: string) => {
+        dispatch(deleteAssignment(assignmentId));
+      };
+      
 
-        <li className="wd-assignment-list-item">
-          <a href="#/Kambaz/Courses/1234/Assignments/234"
-            className="wd-assignment-link" >
-            A2 - CSS BOOTSTRAP
-          </a>
+    return (
+        <div id="wd-assignments" className="p-4">
+            <div className="d-flex justify-content-between align-items-center mb-4">
+                <div className="position-relative w-50">
+                    <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-3" />
+                    <Form.Control
+                        type="text"
+                        placeholder="Search for Assignments"
+                        id="wd-search-assignment"
+                        className="ps-5"
+                    />
+                </div>
+                <div>
+                    <Button variant="secondary" size="sm" className="me-1" id="wd-group">
+                        <FaPlus className="me-2" />
+                        Group
+                    </Button>
+                    <Button
+                        variant="danger"
+                        size="sm"
+                        id="wd-add-assignment-btn"
+                        onClick={addAssignmentHandler}
+                    >
+                        <FaPlus className="me-2" />
+                        Assignment
+                    </Button>
+                </div>
+            </div>
 
-          <p>Multiple Modules | <b>Not available until</b> May 13 at 12: 00am |</p>
-          <p> <b>Due</b> May 20 at 11: 59pm | 100 pts</p>
-        </li>
-
-        <li className="wd-assignment-list-item">
-          <a href="#/Kambaz/Courses/1234/Assignments/244"
-            className="wd-assignment-link" >
-            A3 - JAVASCRIPT REACT
-          </a>
-
-          <p>Multiple Modules | <b>Not available until</b> May 20 at 12：00am |</p>
-          <p> <b>Due</b> May 27 at 11: 59pm | 100 pts</p>
-        </li>
-
-      </ul>
-    </div>
-  );
+            <ListGroup id="wd-assignments-title" className="rounded-0">
+                <ListGroup.Item className="p-0 mb-3 fs-5 border border-1 border-gray">
+                    <div className="wd-title p-3 ps-2 bg-light d-flex justify-content-between align-items-center">
+                        <BsGripVertical className="me-2 fs-3" /><span className="fw-bold">ASSIGNMENTS</span>
+                        <span className="badge rounded-pill bg-secondary px-3 py-1">
+                            40% of Total
+                        </span>
+                        <AssignmentModule />
+                    </div>
+                    <ListGroup id="wd-lessons" className="rounded-0">
+                        {courseAssignments.map((assignment: any) => ( 
+                            <ListGroup.Item key={assignment._id} className="wd-lesson p-3 ps-1 border-start border-success border-3">
+                                <div className="d-flex align-items-center">
+                                    <BsGripVertical className="me-2 fs-3" />
+                                    <div>
+                                        <Link
+                                            to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
+                                            className="wd-assignment-link text-dark fw-bold"
+                                        >
+                                            {assignment.title}
+                                        </Link>
+                                        <div className="text-muted small">
+                                            Multiple Modules | <b>Not available until</b> {assignment.availableFrom} |{" "}
+                                            <b>Due</b> {assignment.dueDate} | {assignment.points} pts
+                                        </div>
+                                    </div>
+                                    <AssignmentControlButtons assignmentId={assignment._id} deleteAssignment={handleDelete}/>
+                                </div>
+                            </ListGroup.Item>
+                        ))}
+                    </ListGroup>
+                </ListGroup.Item>
+            </ListGroup>
+        </div>
+    );
 }
-

@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import ChildStateComponent from "./ChildStateComponent";
 export default function ParentStateComponent() {
   const [counter, setCounter] = useState(123);
@@ -8,7 +8,8 @@ export default function ParentStateComponent() {
       <ChildStateComponent
         counter={counter}
         setCounter={setCounter} />
-      <hr/>
+      <hr />
     </div>
-);}
+  );
+}
 

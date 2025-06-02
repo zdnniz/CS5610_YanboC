@@ -1,10 +1,43 @@
-import { Form, Row, Col } from 'react-bootstrap';
-import { useParams, Link } from 'react-router-dom';
-import * as db from '../../Database';
+import { Form, Row, Col, Button } from 'react-bootstrap';
+import { useParams, useNavigate } from 'react-router-dom';
+import { useSelector, useDispatch } from 'react-redux';
+import type { RootState } from '../../store';
+import { updateAssignment } from './reducer';
+import { useState } from 'react';
 
 export default function AssignmentEditor() {
-  const { aid } = useParams();
-  const assignment = db.assignments.find(a => a._id === aid);
+  const { aid, cid } = useParams();
+
+  const dispatch = useDispatch();
+  const navigate = useNavigate();
+  const assignment = useSelector((state: RootState) => state.assignmentReducer.assignments.find(a => a._id === aid));
+
+  const [title, setTitle] = useState(assignment?.title || '');
+  const [description, setDescription] = useState(assignment?.description || '');
+  const [points, setPoints] = useState(assignment?.points || 0);
+  const [dueDate, setDueDate] = useState(assignment?.dueDate || '');
+  const [availableFrom, setAvailableFrom] = useState(assignment?.availableFrom || '');
+  const [availableUntil, setAvailableUntil] = useState(assignment?.availableFrom || '');
+
+  const handleSave = () => {
+    if (!assignment) return;
+
+    const updated = {
+      ...assignment,
+      title,
+      description,
+      points,
+      dueDate,
+      availableFrom,
+    };
+    dispatch(updateAssignment(updated));
+    navigate(`/Kambaz/Courses/${cid}/Assignments`);
+  };
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
+
   const safeFormatDate = (dateString?: string): string => {
     if (!dateString) return "";
 
@@ -24,7 +57,8 @@ export default function AssignmentEditor() {
           <Form.Control
             id="wd-name"
             placeholder="Assignment Name"
-            defaultValue={assignment?.title}
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
         </Form.Group>
 
@@ -34,7 +68,8 @@ export default function AssignmentEditor() {
             as="textarea"
             id="wd-description"
             rows={10}
-            defaultValue={assignment?.description || "Assignment description"}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
           />
         </Form.Group>
 
@@ -45,7 +80,8 @@ export default function AssignmentEditor() {
           <Col sm={10}>
             <Form.Control
               id="wd-points"
-              defaultValue={assignment?.points || 100}
+              value={points}
+              onChange={(e) => setPoints(Number(e.target.value))}
               type="number"
               className="w-25"
             />
@@ -154,11 +190,8 @@ export default function AssignmentEditor() {
                 <Form.Control
                   id="wd-due-date"
                   type="datetime-local"
-                  defaultValue={
-                    assignment?.dueDate && !isNaN(new Date(assignment.dueDate).getTime())
-                      ? new Date(assignment.dueDate).toISOString().slice(0, 16)
-                      : ""
-                  }
+                  value={safeFormatDate(dueDate)}
+                  onChange={(e) => setDueDate(new Date(e.target.value).toISOString())}
                 />
               </Form.Group>
 
@@ -169,7 +202,8 @@ export default function AssignmentEditor() {
                   <Form.Control
                     id="wd-available-from"
                     type="datetime-local"
-                    defaultValue={safeFormatDate(assignment?.availableFrom)}
+                    value={safeFormatDate(availableFrom)}
+                    onChange={(e) => setAvailableFrom(new Date(e.target.value).toISOString())}
                   />
                 </Col>
                 <Col sm={6}>
@@ -177,7 +211,8 @@ export default function AssignmentEditor() {
                   <Form.Control
                     id="wd-available-until"
                     type="datetime-local"
-                    defaultValue={safeFormatDate(assignment?.availableFrom)}
+                    value={safeFormatDate(availableUntil)}
+                    onChange={(e) => setAvailableUntil(new Date(e.target.value).toISOString())}
                   />
                 </Col>
               </Form.Group>
@@ -186,12 +221,12 @@ export default function AssignmentEditor() {
         </Row>
 
         <div className="mt-4">
-          <Link to={`/Assignments`} className="btn btn-secondary me-2" id="wd-editor-cancel">
+          <Button onClick={handleCancel} className="btn btn-secondary me-2" id="wd-editor-cancel">
             Cancel
-          </Link>
-          <Link to={`/Assignments`} className="btn btn-danger" id="wd-editor-save">
+          </Button>
+          <Button onClick={handleSave} className="btn btn-danger" id="wd-editor-save">
             Save
-          </Link>
+          </Button>
         </div>
       </Form>
     </div>

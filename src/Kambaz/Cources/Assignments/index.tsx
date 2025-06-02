@@ -1,74 +1,108 @@
-import { FaPlus, FaSearch } from "react-icons/fa";
-import { Button, ListGroup, Form } from "react-bootstrap";
-import { BsGripVertical } from "react-icons/bs";
-import { useParams, Link } from "react-router-dom";
-import AssignmentControlButtons from './AssignmentControlButtons';
-import AssignmentModule from './AssignmentModule';
-import * as db from '../../Database';
+import { useParams, useNavigate } from "react-router-dom";
+import { useDispatch, useSelector } from "react-redux";
+import { useState } from "react";
+import { addAssignment } from "./reducer";
+import { Button, Form } from "react-bootstrap";
 
-export default function Assignments() {
-  const { cid } = useParams(); 
-  const assignments = db.assignments.filter(
-    (assignment) => assignment.course === cid
+export default function AssignmentEditor() {
+  const { cid, aid } = useParams();
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+  const assignments = useSelector((state: any) => state.assignmentReducer.assignments);
+
+  const existingAssignment = assignments.find((a: any) => a._id === aid);
+
+  const isNew = !existingAssignment;
+
+  const [title, setTitle] = useState(existingAssignment?.title ?? "New Assignment");
+  const [description, setDescription] = useState(existingAssignment?.description ?? "");
+  const [availableFrom, setAvailableFrom] = useState(
+    existingAssignment?.availableFrom ?? new Date().toISOString().slice(0, 10)
   );
+  const [dueDate, setDueDate] = useState(
+    existingAssignment?.dueDate ?? new Date().toISOString().slice(0, 10)
+  );
+  const [points, setPoints] = useState(existingAssignment?.points ?? 100);
+
+  const handleSave = () => {
+    const assignment = {
+      _id: aid,
+      title,
+      course: cid ?? "",
+      description,
+      availableFrom,
+      dueDate,
+      points,
+    };
+
+    dispatch(addAssignment(assignment));
+    navigate(`/Kambaz/Courses/${cid}/Assignments`);
+  };
+
+  const handleCancel = () => {
+    navigate(-1);
+  };
 
   return (
-    <div id="wd-assignments" className="p-4">
-      <div className="d-flex justify-content-between align-items-center mb-4">
-        <div className="position-relative w-50">
-          <FaSearch className="position-absolute top-50 start-0 translate-middle-y ms-3" />
+    <div className="p-4">
+      <h3>{isNew ? "Create New Assignment" : "Edit Assignment"}</h3>
+
+      <Form>
+        <Form.Group className="mb-3">
+          <Form.Label>Title</Form.Label>
           <Form.Control
             type="text"
-            placeholder="Search for Assignments"
-            id="wd-search-assignment"
-            className="ps-5"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
           />
-        </div>
-        <div>
-          <Button variant="secondary" size="sm" className="me-1" id="wd-group">
-            <FaPlus className="me-2" />
-            Group
-          </Button>
-          <Button variant="danger" size="sm" id="wd-add-assignment-btn">
-            <FaPlus className="me-2" />
-            Assignment
-          </Button>
-        </div>
-      </div>
+        </Form.Group>
 
-      <ListGroup id="wd-assignments-title" className="rounded-0">
-        <ListGroup.Item className="p-0 mb-3 fs-5 border border-1 border-gray">
-          <div className="wd-title p-3 ps-2 bg-light d-flex justify-content-between align-items-center">
-            <BsGripVertical className="me-2 fs-3" /><span className="fw-bold">ASSIGNMENTS</span>
-            <span className="badge rounded-pill bg-secondary px-3 py-1">
-              40% of Total
-            </span>
-            <AssignmentModule />
-          </div>
-          <ListGroup id="wd-lessons" className="rounded-0">
-            {assignments.map((assignment) => (
-              <ListGroup.Item key={assignment._id} className="wd-lesson p-3 ps-1 border-start border-success border-3">
-                <div className="d-flex align-items-center">
-                  <BsGripVertical className="me-2 fs-3" />
-                  <div>
-                    <Link
-                      to={`/Kambaz/Courses/${cid}/Assignments/${assignment._id}`}
-                      className="wd-assignment-link text-dark fw-bold"
-                    >
-                      {assignment.title}
-                    </Link>
-                    <div className="text-muted small">
-                      Multiple Modules | <b>Not available until</b> {assignment.availableFrom} |{" "}
-                      <b>Due</b> {assignment.dueDate} | {assignment.points} pts
-                    </div>
-                  </div>
-                  <AssignmentControlButtons />
-                </div>
-              </ListGroup.Item>
-            ))}
-          </ListGroup>
-        </ListGroup.Item>
-      </ListGroup>
+        <Form.Group className="mb-3">
+          <Form.Label>Description</Form.Label>
+          <Form.Control
+            as="textarea"
+            rows={3}
+            value={description}
+            onChange={(e) => setDescription(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Available From</Form.Label>
+          <Form.Control
+            type="date"
+            value={availableFrom}
+            onChange={(e) => setAvailableFrom(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Due Date</Form.Label>
+          <Form.Control
+            type="date"
+            value={dueDate}
+            onChange={(e) => setDueDate(e.target.value)}
+          />
+        </Form.Group>
+
+        <Form.Group className="mb-3">
+          <Form.Label>Points</Form.Label>
+          <Form.Control
+            type="number"
+            value={points}
+            onChange={(e) => setPoints(Number(e.target.value))}
+          />
+        </Form.Group>
+
+        <div className="d-flex gap-2">
+          <Button variant="primary" onClick={handleSave}>
+            Save
+          </Button>
+          <Button variant="secondary" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      </Form>
     </div>
   );
 }

@@ -3,6 +3,7 @@ import { Row, Col, Card, Button, FormControl } from "react-bootstrap";
 import { useState } from "react";
 import * as db from "./Database";
 import { useSelector } from "react-redux";
+import * as enrollmentClient from "./enrollmentsClient"; 
 
 export default function Dashboard({
   courses, course, setCourse, addNewCourse,
@@ -24,7 +25,7 @@ export default function Dashboard({
   const isEnrolled = (courseId: string) =>
     enrollments.some(e => e.user === currentUser._id && e.course === courseId);
 
-  const enroll = (courseId: string) => {
+  /*const enroll = (courseId: string) => {
     enrollments.push({
       user: currentUser._id, course: courseId,
       _id: ""
@@ -34,6 +35,19 @@ export default function Dashboard({
   const unenroll = (courseId: string) => {
     const index = enrollments.findIndex(e =>
       e.user === currentUser._id && e.course === courseId);
+    if (index !== -1) {
+      enrollments.splice(index, 1);
+    }
+  };*/
+
+  const enroll = async (courseId: string) => {
+    await enrollmentClient.enroll(currentUser._id, courseId);
+    enrollments.push({ user: currentUser._id, course: courseId, _id: "" });
+  };
+  
+  const unenroll = async (courseId: string) => {
+    await enrollmentClient.unenroll(currentUser._id, courseId);
+    const index = enrollments.findIndex(e => e.user === currentUser._id && e.course === courseId);
     if (index !== -1) {
       enrollments.splice(index, 1);
     }
@@ -68,7 +82,7 @@ export default function Dashboard({
       <hr />
       <div id="wd-dashboard-courses">
         <Row xs={1} md={5} className="g-4">
-          {filteredCourses.map((course) => {
+          {courses.map((course) => {
             const enrolled = isEnrolled(course._id);
             return (
               <Col key={course._id} className="wd-dashboard-course" style={{ width: "300px" }}>
@@ -85,7 +99,7 @@ export default function Dashboard({
                         if (enrolled) {
                           navigate(`/Kambaz/Courses/${course._id}/Home`);
                         } else {
-                          alert("请先报名该课程");
+                          alert("Enroll the Course First");
                         }
                       }}>
                         Go

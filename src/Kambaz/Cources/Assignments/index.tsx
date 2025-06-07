@@ -6,19 +6,22 @@ import AssignmentControlButtons from './AssignmentControlButtons';
 import AssignmentModule from './AssignmentModule';
 import { useDispatch, useSelector } from "react-redux";
 import { v4 as uuidv4 } from "uuid";
-import { addAssignment, deleteAssignment } from "./reducer";
+import { addAssignment, deleteAssignment, setAssignments } from "./reducer";
+import * as client from "./client"
+import { useEffect } from "react";
 
 export default function Assignments() {
     const { cid } = useParams();
     const navigate = useNavigate(); 
     const dispatch = useDispatch();
 
+
     const assignments = useSelector((state: any) => state.assignmentReducer.assignments);
     const courseAssignments = assignments.filter(
         (assignment: any) => assignment.course === cid
     );
 
-    const addAssignmentHandler = () => {
+    /*const addAssignmentHandler = () => {
       const newAssignment = {
         _id: uuidv4(),
         title: "New Assignment",
@@ -34,8 +37,35 @@ export default function Assignments() {
 
       const handleDelete = (assignmentId: string) => {
         dispatch(deleteAssignment(assignmentId));
+      };*/
+
+      const addAssignmentHandler = async () => {
+        const newAssignment = {
+          _id: uuidv4(),
+          title: "New Assignment",
+          course: cid ?? "",
+          description: "",
+          availableFrom: new Date().toISOString().slice(0, 10),
+          dueDate: new Date().toISOString().slice(0, 10),
+          points: 100,
+        };
+        const saved = await client.createAssignment(newAssignment);
+        dispatch(addAssignment(saved));
+        navigate(`/Kambaz/Courses/${cid}/Assignments/${saved._id}`);
       };
       
+      const handleDelete = async (assignmentId: string) => {
+        await client.deleteAssignment(assignmentId);
+        dispatch(deleteAssignment(assignmentId));
+      };
+      
+      useEffect(() => {
+        const fetchAssignments = async () => {
+          const data = await client.findAssignmentsForCourse(cid ?? "");
+          dispatch(setAssignments(data));
+        };
+        fetchAssignments();
+      }, [cid]);
 
     return (
         <div id="wd-assignments" className="p-4">

@@ -4,6 +4,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import type { RootState } from '../../store';
 import { updateAssignment } from './reducer';
 import { useState } from 'react';
+import * as client from "./client"
 
 export default function AssignmentEditor() {
   const { aid, cid } = useParams();
@@ -19,7 +20,7 @@ export default function AssignmentEditor() {
   const [availableFrom, setAvailableFrom] = useState(assignment?.availableFrom || '');
   const [availableUntil, setAvailableUntil] = useState(assignment?.availableFrom || '');
 
-  const handleSave = () => {
+  /*const handleSave = () => {
     if (!assignment) return;
 
     const updated = {
@@ -32,7 +33,23 @@ export default function AssignmentEditor() {
     };
     dispatch(updateAssignment(updated));
     navigate(`/Kambaz/Courses/${cid}/Assignments`);
+  };*/
+
+  const handleSave = async () => {
+    if (!assignment) return;
+    const updated = {
+      ...assignment,
+      title,
+      description,
+      points,
+      dueDate,
+      availableFrom,
+    };
+    const saved = await client.updateAssignment(updated);
+    dispatch(updateAssignment(saved));
+    navigate(`/Kambaz/Courses/${cid}/Assignments`);
   };
+  
 
   const handleCancel = () => {
     navigate(-1);

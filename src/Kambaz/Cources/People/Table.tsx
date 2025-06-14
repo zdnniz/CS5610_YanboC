@@ -1,8 +1,8 @@
 import { Table } from "react-bootstrap";
 import { FaUserCircle } from "react-icons/fa";
-import { Link, useParams } from "react-router-dom";
-import { useState, useEffect } from "react";
-import * as client from "../../Account/client";
+import { Link } from "react-router-dom";
+//import { useState, useEffect } from "react";
+//import * as client from "../../Account/client";
 import PeopleDetails from "./Details";
 
 export default function PeopleTable({ users = [] }: { users?: any[] }) {

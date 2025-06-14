@@ -50,7 +50,7 @@ export default function Modules() {
         dispatch(deleteModule(moduleId));
       };     
 
-    const createModuleForCourse = async () => {
+    /*const createModuleForCourse = async () => {
         if (!cid) return;
         const newModule = { name: moduleName, course: cid };
         const module = await courseClient.createModuleForCourse(cid, newModule);
@@ -65,7 +65,7 @@ export default function Modules() {
     const saveModule = async (module: any) => {
         await modulesClient.updateModule(module);
         dispatch(updateModule(module));
-    };
+    };*/
 
     const updateModuleHandler = async (module: any) => {
         await modulesClient.updateModule(module);
